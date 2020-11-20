@@ -3,7 +3,7 @@ import { Form } from '@unform/web';
 import React, { useCallback, useRef } from 'react';
 import { FiLock, FiLogIn, FiMail } from 'react-icons/fi';
 import * as Yup from 'yup';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/auth';
 
@@ -22,15 +22,16 @@ interface SignInFormData {
 }
 
 const SignIn: React.FC = () => {
+  const history = useHistory();
   const formRef = useRef<FormHandles>(null);
   const { signIn } = useAuth();
   const { addToast } = useToast();
 
   const handleSubmit = useCallback(
     async (data: SignInFormData): Promise<void> => {
-      formRef.current?.setErrors({});
-
       try {
+        formRef.current?.setErrors({});
+
         const schema = Yup.object().shape({
           email: Yup.string()
             .required('E-mail obrigatório.')
@@ -43,6 +44,8 @@ const SignIn: React.FC = () => {
         });
 
         await signIn({ email: data.email, password: data.password });
+
+        history.push('/dashboard');
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
           const errors = getValidationErrors(err);
